@@ -11,14 +11,9 @@
            Aspect="AspectFit"
            HorizontalOptions="Center" />
 
-        <!-- Username Entry -->
-        <Entry x:Name="UsernameEntry" Placeholder="Username" />
-
-        <!-- Password Entry -->
-        <Entry x:Name="PasswordEntry" Placeholder="Password" IsPassword="True" />
-
-        <!-- Login Button -->
-        <Button x:Name="LoginButton" Text="Login" Clicked="OnLoginButtonClicked" />
+        <Entry x:Name="UsernameEntry" Placeholder="Username" TextChanged="OnEntryTextChanged" />
+        <Entry x:Name="PasswordEntry" Placeholder="Password" IsPassword="True" TextChanged="OnEntryTextChanged" />
+        <Button x:Name="LoginButton" Text="Login" Clicked="OnLoginButtonClicked" IsEnabled="False" />
 
         <!-- Loader -->
         <ActivityIndicator x:Name="Loader" IsRunning="False" IsVisible="False" Color="Gray" />

@@ -69,5 +69,16 @@ namespace SitHanumanApp
                 LoginButton.IsEnabled = true;
             }
         }
+
+        private void OnEntryTextChanged(object sender, TextChangedEventArgs e)
+        {
+            // Controlla se entrambi i campi sono stati compilati
+            bool isUsernameFilled = !string.IsNullOrWhiteSpace(UsernameEntry.Text);
+            bool isPasswordFilled = !string.IsNullOrWhiteSpace(PasswordEntry.Text);
+
+            // Abilita il pulsante di login solo se entrambi i campi sono compilati
+            LoginButton.IsEnabled = isUsernameFilled && isPasswordFilled;
+        }
+
     }
 }
