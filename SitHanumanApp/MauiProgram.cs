@@ -5,6 +5,10 @@ using Microsoft.Maui.Hosting;
 using SitHanumanApp.Services;
 using System;
 using System.IO;
+using System.Reflection;
+using System.Runtime.CompilerServices;
+using ZXing.Net.Maui;
+using ZXing.Net.Maui.Controls;
 
 namespace SitHanumanApp
 {
@@ -14,26 +18,18 @@ namespace SitHanumanApp
         {
             var builder = MauiApp.CreateBuilder();
 
-            // Determina l'ambiente di esecuzione
-            var environment = Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT") ?? "Production";
-            var configFileName = $"appsettings.{environment}.json";
-            
-            // Configura il file di configurazione
-            var configuration = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile(configFileName, optional: true, reloadOnChange: true)
-                .Build();
-
             builder
                 .UseMauiApp<App>()
+                .UseBarcodeReader()
                 .ConfigureFonts(fonts =>
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                 });
 
+            builder.AddAppSettings();
+
             // Registrazione dei servizi
-            builder.Services.AddSingleton<IConfiguration>(configuration);
             builder.Services.AddSingleton<TokenService>();
 
             // Configura il logger se in debug mode
@@ -43,6 +39,32 @@ namespace SitHanumanApp
 
             // Costruisci l'app
             return builder.Build();
+        }
+    
+        private static void AddAppSettings(this MauiAppBuilder builder)
+        {
+            builder.AddJsonSettings("appsettings.json");
+#if DEBUG
+            builder.AddJsonSettings("appsettings.development.json");
+#endif
+#if !DEBUG
+            builder.AddJsonSettings("appsettings.production.json");
+#endif
+        }
+
+        private static void AddJsonSettings(this MauiAppBuilder builder, string filename)
+        {
+            using Stream stream = Assembly
+                .GetExecutingAssembly()
+                .GetManifestResourceStream($"SitHanumanApp.{filename}");
+
+            if (stream != null)
+            {
+                IConfigurationRoot config = new ConfigurationBuilder()
+                    .AddJsonStream(stream)
+                    .Build();
+                builder.Configuration.AddConfiguration(config);
+            }
         }
     }
 

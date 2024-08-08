@@ -1,10 +1,11 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.JsonWebTokens;
-using Microsoft.Maui.Storage;
-using System;
-using System.Net.Http;
+using SitHanumanApp.Models;
+using System.Diagnostics;
 using System.Net.Http.Json;
-using System.Threading.Tasks;
+using System.Text;
+using System.Text.Json;
+using ZXing.Aztec.Internal;
 
 namespace SitHanumanApp.Services
 {
@@ -12,13 +13,14 @@ namespace SitHanumanApp.Services
     {
         private readonly HttpClient _httpClient;
         private readonly IConfiguration _configuration;
+        private LoginResult? _token;
 
         public TokenService(IConfiguration configuration)
         {
             _configuration = configuration;
-            _httpClient = new HttpClient
+            _httpClient = new HttpClient 
             {
-                BaseAddress = new Uri(configuration["ApiBaseUrl"])
+                    BaseAddress = new Uri(configuration["ApiBaseUrl"])
             };
         }
 
@@ -27,15 +29,17 @@ namespace SitHanumanApp.Services
             try
             {
                 var loginData = new { username, password };
-                var response = await _httpClient.PostAsJsonAsync("/api/token/", loginData);
+                var response = await _httpClient.PostJsonAsync("/api/token/", loginData);
 
                 if (response.IsSuccessStatusCode)
                 {
-                    var result = await response.Content.ReadFromJsonAsync<LoginResult>();
-                    return result;
+                    _token = await response.Content.ReadFromJsonAsync<LoginResult>();
+                    return _token;
                 }
                 else
                 {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    Console.WriteLine($"Errore nella risposta: {errorContent}");
                     throw new Exception("Login failed: Invalid username or password.");
                 }
             }
@@ -53,7 +57,8 @@ namespace SitHanumanApp.Services
         {
             try
             {
-                var accessToken = Preferences.Get("accessToken", string.Empty);
+
+                var accessToken = _token?.Access;
 
                 if (!string.IsNullOrEmpty(accessToken))
                 {
@@ -104,21 +109,20 @@ namespace SitHanumanApp.Services
         {
             try
             {
-                var refreshToken = Preferences.Get("refreshToken", string.Empty);
+                var refreshToken = _token?.Refresh;
 
                 if (!string.IsNullOrEmpty(refreshToken))
                 {
                     var refreshData = new { refresh = refreshToken };
-                    var response = await _httpClient.PostAsJsonAsync("/api/token/refresh/", refreshData);
+                    var response = await _httpClient.PostJsonAsync("/api/token/refresh/", refreshData);
 
                     if (response.IsSuccessStatusCode)
                     {
                         var result = await response.Content.ReadFromJsonAsync<LoginResult>();
                         if (result != null)
                         {
-                            Preferences.Set("accessToken", result.AccessToken);
-                            Preferences.Set("refreshToken", result.RefreshToken);
-                            return result.AccessToken;
+                            _token = result;
+                            return result.Access;
                         }
                         else
                         {
@@ -144,28 +148,28 @@ namespace SitHanumanApp.Services
                 throw new Exception("An error occurred while refreshing the token.", e);
             }
         }
+    }
 
-        public async Task<HttpResponseMessage> GetProtectedResourceAsync()
+    public static class HttpClientExtension
+    {
+        public static async Task<HttpResponseMessage> PostJsonAsync<T>(this HttpClient client,
+                                                                       string requestUri,
+                                                                       T value)
         {
-            try
+            // Serializzazione usando System.Text.Json
+            var options = new JsonSerializerOptions
             {
-                var accessToken = await GetAccessTokenAsync();
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                WriteIndented = true // Imposta su true per una formattazione leggibile
+            };
+            var data = JsonSerializer.Serialize(value, options);
+            var content = new StringContent(data, Encoding.UTF8, "application/json");
 
-                if (!string.IsNullOrEmpty(accessToken))
-                {
-                    _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
-                    var response = await _httpClient.GetAsync("/api/protected/");
-                    return response;
-                }
-                else
-                {
-                    throw new Exception("Access token is invalid or not found.");
-                }
-            }
-            catch (Exception e)
-            {
-                throw new Exception("An error occurred while accessing the protected resource.", e);
-            }
+            // Log della richiesta (opzionale)
+            Debug.WriteLine(client.BaseAddress + requestUri);
+
+            // Invio della richiesta
+            return await client.PostAsync(requestUri, content).ConfigureAwait(false);
         }
     }
 }

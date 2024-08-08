@@ -7,12 +7,10 @@ namespace SitHanumanApp
     {
         private readonly TokenService _tokenService;
 
-        // Questo costruttore è utilizzato dal designer e dalle risorse XAML
         public MainPage()
         {
             InitializeComponent();
 
-            // Risolvi i servizi dal ServiceProvider
             _tokenService = (Application.Current as App)?.ServiceProvider.GetRequiredService<TokenService>();
         }
 
@@ -21,14 +19,22 @@ namespace SitHanumanApp
             var username = UsernameEntry.Text;
             var password = PasswordEntry.Text;
 
-            var loginResult = await _tokenService.LoginAsync(username, password);
-            if (loginResult != null)
+            try
             {
-                // Salva i token per le chiamate successive
-                Preferences.Set("accessToken", loginResult.AccessToken);
-                Preferences.Set("refreshToken", loginResult.RefreshToken);
+                var loginResult = await _tokenService.LoginAsync(username, password);
+                if (loginResult != null)
+                {
+                    await Navigation.PushAsync(new FeatureListPage());
+                }
+                else
+                {
+                    await DisplayAlert("Errore", "Login fallito: username o password non validi.", "OK");
+                }
+            }
+            catch (Exception ex)
+            {
+                await DisplayAlert("Errore", ex.Message, "OK");
             }
         }
     }
-
 }

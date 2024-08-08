@@ -27,17 +27,10 @@
 		<TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
 
-		<Configurations>Debug;Release;Development;Production</Configurations>
+		
 	</PropertyGroup>
 
-	<ItemGroup Condition="'$(Configuration)' == 'Development'">
-		<Content Include="appsettings.Development.json" CopyToOutputDirectory="PreserveNewest" />
-	</ItemGroup>
-
-	<ItemGroup Condition="'$(Configuration)' == 'Production'">
-		<Content Include="appsettings.Production.json" CopyToOutputDirectory="PreserveNewest" />
-	</ItemGroup>
-
+	
 	<ItemGroup>
 		<!-- App Icon -->
 		<MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4" />
@@ -57,22 +50,42 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <EmbeddedResource Include="appsettings.development.json">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </EmbeddedResource>
+	  <EmbeddedResource Include="appsettings.json">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </EmbeddedResource>
+	  <EmbeddedResource Include="appsettings.production.json">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </EmbeddedResource>
+	</ItemGroup>
+
+	<ItemGroup>
 		<PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
 		<PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="8.0.1" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
-		<PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
-		<PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="$(MauiVersion)" />
+		<PackageReference Include="Microsoft.Maui.Controls" Version="8.0.71" />
+		<PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="8.0.71" />
+		<PackageReference Include="System.Text.Json" Version="8.0.4" />
+		<PackageReference Include="ZXing.Net.Maui.Controls" Version="0.4.0" />
 
 	</ItemGroup>
 
 	<ItemGroup>
-	  <None Update="appsettings.Development.json">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </None>
-	  <None Update="appsettings.Production.json">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </None>
+	  <MauiXaml Update="EntrancesQRCodeFailPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="EntrancesQRCodeSuccessPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="FeatureListPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="QRCodePage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	</ItemGroup>
 
 </Project>

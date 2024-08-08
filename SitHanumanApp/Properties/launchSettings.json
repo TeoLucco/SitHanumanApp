@@ -3,26 +3,17 @@
     "Windows Machine": {
       "commandName": "MsixPackage",
       "nativeDebugging": false,
-      "applicationUrl": "http://localhost:5000",
-      "environmentVariables": {
-        "DOTNET_ENVIRONMENT": "Development"
-      }
+      "applicationUrl": "http://localhost:5000"
     },
     "Android": {
       "commandName": "Project",
       "launchBrowser": false,
-      "applicationUrl": "http://localhost:5000",
-      "environmentVariables": {
-        "DOTNET_ENVIRONMENT": "Development"
-      }
+      "applicationUrl": "http://localhost:5000"
     },
     "iOS": {
       "commandName": "Project",
       "launchBrowser": false,
-      "applicationUrl": "http://localhost:5000",
-      "environmentVariables": {
-        "DOTNET_ENVIRONMENT": "Development"
-      }
+      "applicationUrl": "http://localhost:5000"
     }
   }
 }
