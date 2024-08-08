@@ -3,8 +3,17 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="SitHanumanApp.FeatureListPage">
 
-    <StackLayout Padding="20">
-        <Button Text="Scansiona QR Code" Clicked="OnQRCodeFeatureClicked" />
-    </StackLayout>
+    <Grid Padding="20" RowDefinitions="Auto, *">
+        <!-- StackLayout con il pulsante per la scansione del QR Code -->
+        <StackLayout Spacing="10" Grid.Row="0">
+            <Button Text="Scansiona QR Code" Clicked="OnQRCodeFeatureClicked" />
+        </StackLayout>
+
+        <!-- StackLayout per il pulsante di logout, posizionato in fondo -->
+        <StackLayout Grid.Row="1" VerticalOptions="EndAndExpand">
+            <Button Text="Logout" Clicked="OnLogoutButtonClicked" 
+                    BackgroundColor="Red" TextColor="White"/>
+        </StackLayout>
+    </Grid>
 
 </ContentPage>

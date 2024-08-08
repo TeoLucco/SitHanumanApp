@@ -18,10 +18,13 @@ namespace SitHanumanApp.Services
         public TokenService(IConfiguration configuration)
         {
             _configuration = configuration;
-            _httpClient = new HttpClient 
+            _httpClient = new HttpClient
             {
-                    BaseAddress = new Uri(configuration["ApiBaseUrl"])
+                BaseAddress = new Uri(configuration["ApiBaseUrl"])
             };
+
+            // Carica i token salvati
+            LoadTokens();
         }
 
         public async Task<LoginResult> LoginAsync(string username, string password)
@@ -34,6 +37,7 @@ namespace SitHanumanApp.Services
                 if (response.IsSuccessStatusCode)
                 {
                     _token = await response.Content.ReadFromJsonAsync<LoginResult>();
+                    SaveTokens(_token);
                     return _token;
                 }
                 else
@@ -53,11 +57,55 @@ namespace SitHanumanApp.Services
             }
         }
 
+        public async Task LogoutAsync()
+        {
+            try
+            {
+                // Se stai usando un database o un altro meccanismo di persistenza,
+                // assicurati di rimuovere i token salvati.
+                Preferences.Remove("AccessToken");
+                Preferences.Remove("RefreshToken");
+                // Per esempio, potresti fare qualcosa del tipo:
+                _token = null;
+
+                // Se necessario, puoi anche chiamare un'API per invalidare il token sul server.
+                // var response = await _httpClient.PostAsync("/api/token/revoke", null);
+                // response.EnsureSuccessStatusCode();
+            }
+            catch (Exception e)
+            {
+                throw new Exception("An error occurred during logout.", e);
+            }
+        }
+
+        private void SaveTokens(LoginResult? tokens)
+        {
+            if (tokens != null)
+            {
+                Preferences.Set("AccessToken", tokens.Access);
+                Preferences.Set("RefreshToken", tokens.Refresh);
+            }
+        }
+
+        private void LoadTokens()
+        {
+            var accessToken = Preferences.Get("AccessToken", string.Empty);
+            var refreshToken = Preferences.Get("RefreshToken", string.Empty);
+
+            if (!string.IsNullOrEmpty(accessToken) && !string.IsNullOrEmpty(refreshToken))
+            {
+                _token = new LoginResult
+                {
+                    Access = accessToken,
+                    Refresh = refreshToken
+                };
+            }
+        }
+
         public async Task<string> GetAccessTokenAsync()
         {
             try
             {
-
                 var accessToken = _token?.Access;
 
                 if (!string.IsNullOrEmpty(accessToken))
@@ -122,6 +170,7 @@ namespace SitHanumanApp.Services
                         if (result != null)
                         {
                             _token = result;
+                            SaveTokens(result);
                             return result.Access;
                         }
                         else

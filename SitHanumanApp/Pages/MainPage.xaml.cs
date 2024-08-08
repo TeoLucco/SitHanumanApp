@@ -15,6 +15,24 @@ namespace SitHanumanApp
 
             _tokenService = (Application.Current as App)?.ServiceProvider.GetRequiredService<TokenService>();
             _apiService = (Application.Current as App)?.ServiceProvider.GetRequiredService<ApiService>();
+            CheckTokenAndNavigate();
+        }
+
+        private async void CheckTokenAndNavigate()
+        {
+            try
+            {
+                var accessToken = await _tokenService.GetAccessTokenAsync();
+                if (!string.IsNullOrEmpty(accessToken))
+                {
+                    var featureListPage = new FeatureListPage(_apiService, _tokenService);
+                    Application.Current.MainPage = new NavigationPage(featureListPage);
+                }
+            }
+            catch (Exception)
+            {
+                // Token non valido o errore, rimani sulla pagina di login
+            }
         }
 
         private async void OnLoginButtonClicked(object sender, EventArgs e)
@@ -31,7 +49,8 @@ namespace SitHanumanApp
                 var loginResult = await _tokenService.LoginAsync(username, password);
                 if (loginResult != null)
                 {
-                    await Navigation.PushAsync(new FeatureListPage(_apiService));
+                    var featureListPage = new FeatureListPage(_apiService, _tokenService);
+                    Application.Current.MainPage = new NavigationPage(featureListPage);
                 }
                 else
                 {
