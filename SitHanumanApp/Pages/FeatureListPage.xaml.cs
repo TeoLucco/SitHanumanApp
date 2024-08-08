@@ -1,19 +1,19 @@
 using SitHanumanApp.Services;
-using System.Net.Http.Headers;
-using ZXing.Net.Maui;
 
 namespace SitHanumanApp
 {
     public partial class FeatureListPage : ContentPage
     {
-        public FeatureListPage()
+        private readonly ApiService _apiService;
+        public FeatureListPage(ApiService apiService)
         {
             InitializeComponent();
+            _apiService = apiService;
         }
 
         private async void OnQRCodeFeatureClicked(object sender, EventArgs e)
         {
-            await Navigation.PushAsync(new QRCodePage());
+            await Navigation.PushAsync(new QRCodeScanPage(_apiService));
         }
     }
 }

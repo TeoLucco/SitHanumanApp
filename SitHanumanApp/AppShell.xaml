@@ -7,7 +7,7 @@
     Title="SitHanumanApp">
 
     <ShellContent
-        Title="Home"
+        Title="SitHanumanCoachApp"
         ContentTemplate="{DataTemplate local:MainPage}"
         Route="MainPage" />
 

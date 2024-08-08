@@ -7,6 +7,7 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Text.Json;
 using ZXing.Net.Maui;
 using ZXing.Net.Maui.Controls;
 
@@ -31,6 +32,20 @@ namespace SitHanumanApp
 
             // Registrazione dei servizi
             builder.Services.AddSingleton<TokenService>();
+
+            builder.Services.AddSingleton(new JsonSerializerOptions
+            {
+                //PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                //PropertyNameCaseInsensitive = true
+            });
+
+            builder.Services.AddSingleton<ApiService>(provider =>
+            {
+                var configuration = provider.GetRequiredService<IConfiguration>();
+                var options = provider.GetRequiredService<JsonSerializerOptions>();
+                var tokenService = provider.GetRequiredService<TokenService>();
+                return new ApiService(configuration, options, tokenService);
+            });
 
             // Configura il logger se in debug mode
 #if DEBUG

@@ -1,11 +1,11 @@
 namespace SitHanumanApp
 {
-    public partial class EntrancesQRCodeSuccessPage : ContentPage
+    public partial class QRCodeExceptionPage : ContentPage
     {
-        public EntrancesQRCodeSuccessPage(string responseData)
+        public QRCodeExceptionPage(string errorData)
         {
             InitializeComponent();
-            ResponseLabel.Text = responseData;
+            ErrorLabel.Text = errorData;
         }
 
         private async void OnBackButtonClicked(object sender, EventArgs e)
