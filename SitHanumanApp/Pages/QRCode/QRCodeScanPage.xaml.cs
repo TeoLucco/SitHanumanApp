@@ -1,4 +1,3 @@
-using SitHanumanApp.Models;
 using SitHanumanApp.Services;
 using ZXing.Net.Maui;
 
@@ -13,23 +12,30 @@ namespace SitHanumanApp
         {
             _apiService = apiService;
             InitializeComponent();
-            cameraView.Options = new BarcodeReaderOptions
-            {
-                Formats = BarcodeFormats.All,
-                AutoRotate = true,
-                Multiple = true
-            };
         }
 
         protected override void OnAppearing()
         {
             base.OnAppearing();
-            cameraView.IsDetecting = true; // Riattiva la scansione quando la pagina riappare
+
+            cameraView.IsVisible = true;
+            cameraView.Options = new BarcodeReaderOptions
+            {
+                AutoRotate = true,
+                Formats = BarcodeFormats.All,
+                Multiple = true
+            };
+            cameraView.CameraLocation = CameraLocation.Front;
+            cameraView.CameraLocation = CameraLocation.Rear;
+            cameraView.IsEnabled = true;
+            cameraView.IsDetecting = true;
         }
 
         private async void OnBarcodeDetected(object sender, BarcodeDetectionEventArgs e)
         {
+            cameraView.IsEnabled = false;
             cameraView.IsDetecting = false;
+            cameraView.IsVisible = false;
             foreach (var barcode in e.Results)
             {
                 var value = barcode.Value;
